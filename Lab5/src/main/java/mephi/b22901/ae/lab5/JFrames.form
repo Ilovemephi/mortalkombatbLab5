@@ -236,11 +236,6 @@
           </Layout>
           <SubComponents>
             <Component class="javax.swing.JLabel" name="jLabel2">
-              <Properties>
-                <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="2" name="C:\Users\&#x41c;&#x430;&#x440;&#x438;&#x44f;\Desktop\Kitana.jpg"/>
-                </Property>
-              </Properties>
             </Component>
             <Component class="javax.swing.JButton" name="jButton3">
               <Properties>
@@ -1399,11 +1394,6 @@
           </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel3">
-          <Properties>
-            <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="2" name="C:\Users\&#x41c;&#x430;&#x440;&#x438;&#x44f;\Desktop\MK.jpg"/>
-            </Property>
-          </Properties>
         </Component>
       </SubComponents>
     </Container>

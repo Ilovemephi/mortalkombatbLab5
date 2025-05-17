@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package mortalkombatbversion;
+package mephi.b22901.ae.lab5;
 
 import java.io.IOException;
 import java.util.logging.Level;
