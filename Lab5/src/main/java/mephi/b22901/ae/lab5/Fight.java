@@ -77,7 +77,7 @@ public class Fight {
         if (k < kind_attack.length - 1) {
             k++;
         } else {
-            kind_attack = action.ChooseBehavior(enemy, action);
+            kind_attack = action.selectEnemyBehavior(enemy);
             k = 0;
         }
         enemy.setAttack(kind_attack[k]);
@@ -88,12 +88,12 @@ public class Fight {
         }
         i++;
         change.RoundTexts(human, enemy, label, label2, i, label6);
-        action.HP(human, pr1);
-        action.HP(enemy, pr2);
+        action.updateHealthBar(human, pr1);
+        action.updateHealthBar(enemy, pr2);
         if (human.getHealth() <= 0 & items[2].getCount() > 0) {
             human.setNewHealth((int) (human.getMaxHealth() * 0.05));
             items[2].setCount(-1);
-            action.HP(human, pr1);
+            action.updateHealthBar(human, pr1);
             label2.setText(human.getHealth() + "/" + human.getMaxHealth());
             rb.setText(items[2].getName() + ", " + items[2].getCount() + " шт");
             label7.setText("Вы воскресли");
@@ -187,8 +187,8 @@ public class Fight {
         pr2.setMaximum(enemy1.getMaxHealth());
         human.setNewHealth(human.getMaxHealth());
         enemy1.setNewHealth(enemy1.getMaxHealth());
-        action.HP(human, pr1);
-        action.HP(enemy1, pr2);
+        action.updateHealthBar(human, pr1);
+        action.updateHealthBar(enemy1, pr2);
         return enemy1;
     }
 

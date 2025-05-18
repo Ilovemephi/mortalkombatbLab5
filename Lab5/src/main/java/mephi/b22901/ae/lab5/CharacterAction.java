@@ -1,6 +1,7 @@
 
 package mephi.b22901.ae.lab5;
 
+import java.awt.Color;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -9,34 +10,57 @@ import javax.swing.JProgressBar;
 
 public class CharacterAction {
 
-    private final int experience_for_next_level[] = {40, 90, 180, 260, 410, 1000};
+    /**
+    * Количество опыта, необходимое для перехода на следующий уровень.
+    */
+   private final int experienceForNextLevel[] = {40, 90, 180, 260, 410, 1000};
 
-    private final int kind_fight[][] = {{1, 0}, {1, 1, 0}, {0, 1, 0}, {1, 1, 1, 1}};
+   /**
+    * Шаблоны поведения противников.
+    * 1 — атака, 0 — защита
+    */
+   private final int[][] enemyBehaviorPatterns = {
+       {1, 0},           //  0: Attack → Defend
+       {1, 1, 0},        //  1: Attack → Attack → Defend
+       {0, 1, 0},        //  2: Defend → Attack → Defend
+       {1, 1, 1, 1}      //  3: All attacks
+   };
 
-    private Player enemyes[] = new Player[6];
+   /**
+    * Список доступных противников (типы).
+    */
+   private Player[] enemies = new Player[6];
 
-    private Player enemyy = null;
+   /**
+    * Текущий противник в бою.
+    */
+   private Player currentEnemy = null;
+   
+   
+    /**
+     * Инициализируем врагов которых создает фабрика 
+     * Последние два это босы
+     */
+    public void initializeEnemies() {
+    enemies[0] = EnemyFactory.createEnemy(EnemyType.BARAKA, 1);     
 
-    public void setEnemyes() {
-    enemyes[0] = EnemyFactory.createEnemy(EnemyType.BARAKA, 1);     
-    System.out.println(enemyes[0]);
-    enemyes[1] = EnemyFactory.createEnemy(EnemyType.SUBZERO, 1);    
-    System.out.println(enemyes[1]);
-    enemyes[2] = EnemyFactory.createEnemy(EnemyType.LIUKANG, 1);   
-    System.out.println(enemyes[2]);
-    enemyes[3] = EnemyFactory.createEnemy(EnemyType.SONYABLADE, 1); 
-    System.out.println(enemyes[3]);
-    enemyes[4] = EnemyFactory.createEnemy(EnemyType.SHAOKAHN, 3); 
-    System.out.println(enemyes[4]);                                   // Босс для 3 уровня
-    enemyes[5] = EnemyFactory.createEnemy(EnemyType.SHAOKAHN, 5); 
-    System.out.println(enemyes[5]);                                   // Босс для 5 уровня
+    enemies[1] = EnemyFactory.createEnemy(EnemyType.SUBZERO, 1);    
+
+    enemies[2] = EnemyFactory.createEnemy(EnemyType.LIUKANG, 1);   
+
+    enemies[3] = EnemyFactory.createEnemy(EnemyType.SONYABLADE, 1); 
+
+    enemies[4] = EnemyFactory.createEnemy(EnemyType.SHAOKAHN, 3); 
+                          
+    enemies[5] = EnemyFactory.createEnemy(EnemyType.SHAOKAHN, 5);  
+                                 
 }
 
 
 
 
     public Player[] getEnemyes() {
-        return this.enemyes;
+        return this.enemies;
     }
 
     public Player ChooseEnemy(JLabel label, JLabel label2, JLabel text, JLabel label3) {
@@ -44,30 +68,30 @@ public class CharacterAction {
         ImageIcon icon1 = null;
         switch (i) {
             case 0:
-                enemyy = enemyes[0];
+                currentEnemy = enemies[0];
                 icon1 = new ImageIcon("C:\\Users\\Мария\\Desktop\\Baraka.jpg");
                 label2.setText("Baraka (танк)");
                 break;
             case 1:
-                enemyy = enemyes[1];
+                currentEnemy = enemies[1];
                 icon1 = new ImageIcon("C:\\Users\\Мария\\Desktop\\Sub-Zero.jpg");
                 label2.setText("Sub-Zero (маг)");
                 break;
             case 2:
-                enemyy = enemyes[2];
+                currentEnemy = enemies[2];
                 icon1 = new ImageIcon("C:\\Users\\Мария\\Desktop\\Liu Kang.jpg");
                 label2.setText("Liu Kang (боец)");
                 break;
             case 3:
-                enemyy = enemyes[3];
+                currentEnemy = enemies[3];
                 icon1 = new ImageIcon("C:\\Users\\Мария\\Desktop\\Sonya Blade.jpg");
                 label2.setText("Sonya Blade (солдат)");
                 break;
         }
         label.setIcon(icon1);
-        text.setText(Integer.toString(enemyy.getDamage()));
-        label3.setText(Integer.toString(enemyy.getHealth()) + "/" + Integer.toString(enemyy.getMaxHealth()));
-        return enemyy;
+        text.setText(Integer.toString(currentEnemy.getDamage()));
+        label3.setText(Integer.toString(currentEnemy.getHealth()) + "/" + Integer.toString(currentEnemy.getMaxHealth()));
+        return currentEnemy;
     }
 
     public Player ChooseBoss(JLabel label, JLabel label2, JLabel text, JLabel label3, int i) {
@@ -76,64 +100,89 @@ public class CharacterAction {
         label2.setText("Shao Kahn (босс)");
         switch (i) {
             case 2:
-                enemyy = enemyes[4];
+                currentEnemy = enemies[4];
                 break;
             case 4:
-                enemyy = enemyes[5];
+                currentEnemy = enemies[5];
                 break;
         }
         label.setIcon(icon1);
-        text.setText(Integer.toString(enemyy.getDamage()));
-        label3.setText(Integer.toString(enemyy.getHealth()) + "/" + Integer.toString(enemyy.getMaxHealth()));
-        return enemyy;
+        text.setText(Integer.toString(currentEnemy.getDamage()));
+        label3.setText(Integer.toString(currentEnemy.getHealth()) + "/" + Integer.toString(currentEnemy.getMaxHealth()));
+        return currentEnemy;
     }
 
-    public int[] EnemyBehavior(int k1, int k2, int k3, int k4, double i) {
-        int arr[] = null;
-        if (i < k1 * 0.01) {
-            arr = kind_fight[0];
+    
+    /** 
+     * Генерируем поведение противника
+     * @param pattern1Chance процент вероятности первого типа поведения 
+     * @param pattern2Chance процент вероятности второго типа поведения
+     * @param pattern3Chance процент вероятности третьего типа поведения
+     * @param pattern4Chance процент вероятности четвертого типа поведения
+     * @param randomValue случайное число в диапазоне [0.0, 1.0)
+     * @return выбранный шаблон поведения как массив {1, 0} и т.п.
+     */
+    public int[] generateEnemyBehavior(int pattern1Chance, int pattern2Chance, int pattern3Chance, int pattern4Chance, double randomValue) {
+        int totalChance = pattern1Chance + pattern2Chance + pattern3Chance + pattern4Chance;
+        if (totalChance != 100) {
+            throw new IllegalArgumentException("Сумма вероятностей должна быть равна 100%");
         }
-        if (i >= k1 * 0.01 & i < (k1 + k2) * 0.01) {
-            arr = kind_fight[1];
-        }
-        if (i >= (k1 + k2) * 0.01 & i < (k1 + k2 + k3) * 0.01) {
-            arr = kind_fight[2];
-        }
-        if (i >= (k1 + k2 + k3) * 0.01 & i < 1) {
-            arr = kind_fight[3];
-        }
-        return arr;
-    }
 
-    public int[] ChooseBehavior(Player enemy, CharacterAction action) {
-        int arr[] = null;
-        double i = Math.random();
-        if (enemy instanceof Baraka) {
-            arr = action.EnemyBehavior(15, 15, 60, 10, i);
-        }
-        if (enemy instanceof SubZero) {
-            arr = action.EnemyBehavior(25, 25, 0, 50, i);
-        }
-        if (enemy instanceof LiuKang) {
-            arr = action.EnemyBehavior(13, 13, 10, 64, i);
-        }
-        if (enemy instanceof SonyaBlade) {
-            arr = action.EnemyBehavior(25, 25, 50, 0, i);
-        }
-        if (enemy instanceof ShaoKahn) {
-            arr = action.EnemyBehavior(10, 45, 0, 45, i);
-        }
-        return arr;
-    }
+        double cumulative = 0; // накполенная сумма вероятностей 
 
-    public void HP(Player player, JProgressBar progress) {
-
-        if (player.getHealth() >= 0) {
-            progress.setValue(player.getHealth());
+        if (randomValue < (cumulative += pattern1Chance * 0.01)) {
+            return enemyBehaviorPatterns[0];
+        } else if (randomValue < (cumulative += pattern2Chance * 0.01)) {
+            return enemyBehaviorPatterns[1];
+        } else if (randomValue < (cumulative += pattern3Chance * 0.01)) {
+            return enemyBehaviorPatterns[2];
         } else {
-            progress.setValue(0);
+            return enemyBehaviorPatterns[3];
         }
     }
+    
+    
+
+    /**
+    * Выбирает шаблон поведения противника на основе его типа.
+    * Используется для определения последовательности действий врага (атака/защита).
+    *
+    * @param enemy текущий противник
+    * @return массив с последовательностью действий (1 — атака, 0 — защита)
+    */
+   public int[] selectEnemyBehavior(Player enemy) {
+
+       if ("Baraka".equals(enemy.getClass().getSimpleName())) {
+           return generateEnemyBehavior(30, 60, 10, 0, Math.random());
+
+
+       } else if ("SubZero".equals(enemy.getClass().getSimpleName())) {
+           return generateEnemyBehavior(50, 0, 50, 0, Math.random());
+
+       } else if ("LiuKang".equals(enemy.getClass().getSimpleName())) {
+           return generateEnemyBehavior(25, 70, 5, 0, Math.random());
+
+       } else if ("SonyaBlade".equals(enemy.getClass().getSimpleName())) {
+           return generateEnemyBehavior(40, 50, 10, 0, Math.random());
+       }
+
+       return generateEnemyBehavior(30, 60, 10, 0, Math.random());
+   }
+
+    /**
+    * Обновляет состояние индикатора здоровья (прогресс-бар) на основе текущего здоровья персонажа.
+    *
+    * @param player   игрок или противник, чьё здоровье отслеживается
+    * @param progressBar индикатор здоровья (JProgressBar)
+    */
+   public void updateHealthBar(Player player, JProgressBar progressBar) {
+       int maxHealth = player.getMaxHealth();
+       int currentHealth = player.getHealth();
+
+ 
+       int healthPercentage = Math.max(0, Math.min(100, (currentHealth * 100) / maxHealth));
+       progressBar.setValue(healthPercentage);
+   }
 
     public void AddPoints(Human human, Player[] enemyes) {
         switch (human.getLevel()) {
@@ -159,9 +208,9 @@ public class CharacterAction {
                 break;
         }
         for (int i = 0; i < 5; i++) {
-            if (experience_for_next_level[i] == human.getExperience()) {
+            if (experienceForNextLevel[i] == human.getExperience()) {
                 human.setLevel();
-                human.setNextExperience(experience_for_next_level[i + 1]);
+                human.setNextExperience(experienceForNextLevel[i + 1]);
                 NewHealthHuman(human);
                 for (int j = 0; j < 4; j++) {
                     NewHealthEnemy(enemyes[j], human);
@@ -182,9 +231,9 @@ public class CharacterAction {
                 break;
         }
         for (int i = 0; i < 5; i++) {
-            if (experience_for_next_level[i] == human.getExperience()) {
+            if (experienceForNextLevel[i] == human.getExperience()) {
                 human.setLevel();
-                human.setNextExperience(experience_for_next_level[i + 1]);
+                human.setNextExperience(experienceForNextLevel[i + 1]);
                 NewHealthHuman(human);
                 for (int j = 0; j < 4; j++) {
                     NewHealthEnemy(enemyes[j], human);

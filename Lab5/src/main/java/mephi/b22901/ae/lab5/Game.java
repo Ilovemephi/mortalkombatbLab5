@@ -25,16 +25,16 @@ public class Game {
 
     public Player NewEnemy(JLabel L1, JLabel L2,
             JLabel L3, JLabel L4, JProgressBar pr2) {
-        action.setEnemyes();
+        action.initializeEnemies();
         Player enemy = action.ChooseEnemy(L1, L2, L3, L4);
-        action.HP(enemy, pr2);
+        action.updateHealthBar(enemy, pr2);
         pr2.setMaximum(enemy.getMaxHealth());
         return enemy;
     }
     
     public Human NewHuman(JProgressBar pr1){
         Human human = new Human (0,80,16,1);
-        action.HP(human, pr1);
+        action.updateHealthBar(human, pr1);
         pr1.setMaximum(human.getMaxHealth());
         return human;
     }

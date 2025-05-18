@@ -1043,7 +1043,7 @@ public class JFrames extends javax.swing.JFrame {
             nameButton="jRadioButton3";
         }
         game.action.UseItem(human, items, nameButton, jDialog6, jDialog5);
-        game.action.HP(human, jProgressBar1);
+        game.action.updateHealthBar(human, jProgressBar1);
         jLabel12.setText(human.getHealth() + "/" + human.getMaxHealth());
         game.change.BagText(items, jRadioButton1, jRadioButton2, jRadioButton3);
     }//GEN-LAST:event_jButton9ActionPerformed
