@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package mephi.b22901.ae.lab5;
 
 import javax.swing.ImageIcon;
@@ -9,10 +6,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 
-/**
- *
- * @author Мария
- */
+
 public class CharacterAction {
 
     private final int experience_for_next_level[] = {40, 90, 180, 260, 410, 1000};
@@ -21,18 +15,25 @@ public class CharacterAction {
 
     private Player enemyes[] = new Player[6];
 
-    EnemyFabric fabric = new EnemyFabric();
-
     private Player enemyy = null;
 
     public void setEnemyes() {
-        enemyes[0] = fabric.create(0, 0);
-        enemyes[1] = fabric.create(1, 0);
-        enemyes[2] = fabric.create(2, 0);
-        enemyes[3] = fabric.create(3, 0);
-        enemyes[4] = fabric.create(4, 0);
-        enemyes[5] = fabric.create(4, 0);
-    }
+    enemyes[0] = EnemyFactory.createEnemy(EnemyType.BARAKA, 1);     
+    System.out.println(enemyes[0]);
+    enemyes[1] = EnemyFactory.createEnemy(EnemyType.SUBZERO, 1);    
+    System.out.println(enemyes[1]);
+    enemyes[2] = EnemyFactory.createEnemy(EnemyType.LIUKANG, 1);   
+    System.out.println(enemyes[2]);
+    enemyes[3] = EnemyFactory.createEnemy(EnemyType.SONYABLADE, 1); 
+    System.out.println(enemyes[3]);
+    enemyes[4] = EnemyFactory.createEnemy(EnemyType.SHAOKAHN, 3); 
+    System.out.println(enemyes[4]);                                   // Босс для 3 уровня
+    enemyes[5] = EnemyFactory.createEnemy(EnemyType.SHAOKAHN, 5); 
+    System.out.println(enemyes[5]);                                   // Босс для 5 уровня
+}
+
+
+
 
     public Player[] getEnemyes() {
         return this.enemyes;

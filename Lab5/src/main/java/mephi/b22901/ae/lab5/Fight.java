@@ -1,10 +1,7 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package mephi.b22901.ae.lab5;
 
-//ADD IMAGE!!!
+
 import java.util.ArrayList;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -12,16 +9,13 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 
-/**
- *
- * @author Мария
- */
+
 public class Fight {
 
     ChangeTexts change = new ChangeTexts();
     int kind_attack[] = {0};
-    int experiences[] = {40, 90, 180, 260, 410};
-    EnemyFabric fabric = new EnemyFabric();
+    //int experiences[] = {40, 90, 180, 260, 410};  Вроде бы вообще не нужно
+    //EnemyFactory factory = new EnemyFactory();  Вроде бы вообще не нужно 
     int i = 1;
     int k = -1;
     int stun = 0;
