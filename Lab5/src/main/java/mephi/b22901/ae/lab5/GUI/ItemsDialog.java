@@ -34,7 +34,7 @@ public class ItemsDialog extends JDialog {
         }
     }
 
-    private static final String[] allItems = {
+    public static final String[] allItems = {
         "Малое зелье лечения",
         "Большое зелье лечения",
         "Крест возрождения"
@@ -138,4 +138,20 @@ public class ItemsDialog extends JDialog {
         }
         updateItemList();
     }
+    
+    
+    /**
+    * Возвращает индекс выбранного элемента
+    */
+   public int getSelectedIndex() {
+       return itemsList.getSelectedIndex();
+   }
+
+   /**
+    * Получает количество указанного предмета
+    */
+   public int getItemCount(String itemName) {
+       return itemQuantities.getOrDefault(itemName, 0);
+   }
+    
 }

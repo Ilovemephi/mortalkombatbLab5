@@ -7,6 +7,7 @@ package mephi.b22901.ae.lab5;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import mephi.b22901.ae.lab5.GUI.ItemsDialog;
 
 
 /**
@@ -1033,6 +1034,7 @@ public class JFrames extends javax.swing.JFrame {
     }//GEN-LAST:event_jRadioButton2ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
+        ItemsDialog id = new ItemsDialog(this, true);
         if(jRadioButton1.isSelected()){
             nameButton="jRadioButton1";
         }
@@ -1042,7 +1044,7 @@ public class JFrames extends javax.swing.JFrame {
         if(jRadioButton3.isSelected()){
             nameButton="jRadioButton3";
         }
-        game.action.UseItem(human, items, nameButton, jDialog6, jDialog5);
+        game.action.useSelectedItemFromBag(human, id);
         game.action.updateHealthBar(human, jProgressBar1);
         jLabel12.setText(human.getHealth() + "/" + human.getMaxHealth());
         game.change.BagText(items, jRadioButton1, jRadioButton2, jRadioButton3);

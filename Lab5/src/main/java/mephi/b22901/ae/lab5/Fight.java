@@ -118,11 +118,11 @@ public class Fight {
             ((Human) human).setWin();
 
             if (enemy instanceof ShaoKahn) {
-                action.AddItems(38, 23, 8, items);
-                action.AddPointsBoss(((Human) human), action.getEnemyes());
+                action.dropItemsOnVictory(items);
+                action.grantExperienceAndPointsFromBoss(((Human) human), action.getEnemyes());
             } else {
-                action.AddItems(25, 15, 5, items);
-                action.AddPoints(((Human) human), action.getEnemyes());
+                action.dropItemsOnVictory(items);
+                action.grantExperienceAndPoints(((Human) human), action.getEnemyes());
             }
         } else {
             label.setText(enemy.getName() + " win");
@@ -140,7 +140,7 @@ public class Fight {
         String text = "Победа не на вашей стороне";
         if (human.getHealth() > 0) {
             human.setWin();
-            action.AddPoints(human, action.getEnemyes());
+            action.grantExperienceAndPoints(human, action.getEnemyes());
             text = "Победа на вашей стороне";
         }
         boolean top = false;

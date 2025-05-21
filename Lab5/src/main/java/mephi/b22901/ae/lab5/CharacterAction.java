@@ -5,7 +5,9 @@ import java.awt.Color;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
+import mephi.b22901.ae.lab5.GUI.ItemsDialog;
 
 
 public class CharacterAction {
@@ -62,6 +64,7 @@ public class CharacterAction {
     public Player[] getEnemyes() {
         return this.enemies;
     }
+    
 
     public Player ChooseEnemy(JLabel label, JLabel label2, JLabel text, JLabel label3) {
         int i = (int) (Math.random() * 4);
@@ -184,156 +187,238 @@ public class CharacterAction {
        progressBar.setValue(healthPercentage);
    }
 
-    public void AddPoints(Human human, Player[] enemyes) {
-        switch (human.getLevel()) {
-            case 0:
-                human.setExperience(20);
-                human.setPoints(25 + human.getHealth() / 4);
-                break;
-            case 1:
-                human.setExperience(25);
-                human.setPoints(30 + human.getHealth() / 4);
-                break;
-            case 2:
-                human.setExperience(30);
-                human.setPoints(35 + human.getHealth() / 4);
-                break;
-            case 3:
-                human.setExperience(40);
-                human.setPoints(45 + human.getHealth() / 4);
-                break;
-            case 4:
-                human.setExperience(50);
-                human.setPoints(55 + human.getHealth() / 4);
-                break;
-        }
-        for (int i = 0; i < 5; i++) {
-            if (experienceForNextLevel[i] == human.getExperience()) {
-                human.setLevel();
-                human.setNextExperience(experienceForNextLevel[i + 1]);
-                NewHealthHuman(human);
-                for (int j = 0; j < 4; j++) {
-                    NewHealthEnemy(enemyes[j], human);
-                }
+    /**
+    * Начисляет игроку опыт и очки за победу над обычным врагом.
+    * Если накоплено достаточно опыта — повышает уровень игрока и усиливает его параметры.
+    *
+    * @param human игрок, которому начисляются опыт и очки
+    * @param enemies список доступных противников для масштабирования их характеристик
+    */
+   public void grantExperienceAndPoints(Human human, Player[] enemies) {
+       // Таблицы зависимости уровня на опыт и очки
+       int[] levelToExperience = {20, 25, 30, 40, 50, 60}; // опыт по уровням 0-5
+       int[] levelToBasePoints = {25, 30, 35, 45, 55, 70}; // очки по уровням 0-5
+
+       int level = Math.min(human.getLevel(), levelToExperience.length - 1);
+
+       int experienceGained = levelToExperience[level];
+       int basePoints = levelToBasePoints[level];
+
+       // Расчёт финальных очков с учётом здоровья
+       int healthFactor = Math.max(0, human.getHealth());
+       int finalPoints = basePoints + (healthFactor / 4);
+
+       // Начисляем опыт и очки
+       human.setExperience(experienceGained);
+       human.setPoints(finalPoints);
+
+       // Проверяем повышение уровня
+       for (int i = 0; i < experienceForNextLevel.length; i++) {
+           if (human.getExperience() == experienceForNextLevel[i]) {
+               human.setLevel();
+               human.setNextExperience(experienceForNextLevel[i + 1]);
+
+               increasePlayerStatsOnLevelUp(human);
+               adjustEnemyStatsToPlayer(human, enemies);
+               break;
+           }
+       }
+   }
+   
+   private void increasePlayerStatsOnLevelUp(Player player) {
+        player.setMaxHealth((int) (player.getMaxHealth() * 1.2));
+        player.setDamage((int) (player.getDamage() * 1.1));      
+    }
+   
+   
+   private void adjustEnemyStatsToPlayer(Human human, Player[] enemies) {
+        for (int i = 0; i < enemies.length; i++) {
+            if (enemies[i] != null && !(enemies[i] instanceof ShaoKahn)) {
+                enemies[i].setMaxHealth((int) (enemies[i].getMaxHealth() * (1 + (human.getLevel() - 1) * 0.2))); //Здоровье на 20 процентов больше
+                enemies[i].setDamage((int) (enemies[i].getDamage() * (1 + (human.getLevel() - 1) * 0.1))); // Урон на 10 процентов больше
             }
         }
     }
+   
 
-    public void AddPointsBoss(Human human, Player[] enemyes) {
-        switch (human.getLevel()) {
-            case 2:
-                human.setExperience(30);
-                human.setPoints(45 + human.getHealth() / 2);
-                break;
-            case 4:
-                human.setExperience(50);
-                human.setPoints(65 + human.getHealth() / 2);
-                break;
-        }
-        for (int i = 0; i < 5; i++) {
-            if (experienceForNextLevel[i] == human.getExperience()) {
-                human.setLevel();
-                human.setNextExperience(experienceForNextLevel[i + 1]);
-                NewHealthHuman(human);
-                for (int j = 0; j < 4; j++) {
-                    NewHealthEnemy(enemyes[j], human);
-                }
-            }
+    /**
+    * Начисляет игроку опыт и очки за победу над боссом.
+    * Если накоплено достаточно опыта — повышает уровень игрока и усиливает его параметры.
+    *
+    * @param human игрок, которому начисляются опыт и очки
+    * @param enemies список доступных противников для масштабирования их характеристик
+    */
+   public void grantExperienceAndPointsFromBoss(Human human, Player[] enemies) {
+       int experienceGained;
+       int basePoints;
+
+       int level = human.getLevel();
+       if (level == 2) {
+           experienceGained = 30;
+           basePoints = 45;
+       } else if (level == 4) {
+           experienceGained = 50;
+           basePoints = 65;
+       } else {
+           experienceGained = 40;
+           basePoints = 50;
+       }
+
+       // Расчёт финальных очков с учётом здоровья
+       int healthFactor = Math.max(0, human.getHealth());
+       int finalPoints = basePoints + (healthFactor / 2); // Учитываем здоровье в 2 раза больше
+
+     
+       human.setExperience(experienceGained);
+       human.setPoints(finalPoints);
+
+      
+       for (int i = 0; i < experienceForNextLevel.length; i++) {
+           if (human.getExperience() == experienceForNextLevel[i]) {
+               human.setLevel();
+               human.setNextExperience(experienceForNextLevel[i + 1]);
+
+               increasePlayerStatsOnLevelUp(human);
+               adjustEnemyStatsToPlayer(human, enemies);
+               break;
+           }
+       }
+   }
+
+    /**
+ * Вызывается после победы над врагом.
+ * С вероятностью добавляет игроку один из следующих предметов:
+ * - Малое зелье лечения (25%)
+ * - Большое зелье лечения (15%)
+ * - Крест возрождения (5%)
+ *
+ * @param playerItems массив предметов игрока, в который может быть добавлен новый предмет
+ */
+public void dropItemsOnVictory(Items[] playerItems) {
+    double chance = Math.random() * 100;
+
+    if (chance < 5 && playerItems[2].getCount() < 99) {
+        playerItems[2].setCount(1); // Крест воскрешения
+    } else if (chance < 20 && playerItems[1].getCount() < 99) {
+        playerItems[1].setCount(1); // Большое зелье лечения
+    } else if (chance < 45 && playerItems[0].getCount() < 99) {
+        playerItems[0].setCount(1); // Малое зелье лечения
+    }
+}
+
+    /**
+    * Усиливает параметры игрока при повышении уровня.
+    * Здоровье и урон зависят от текущего уровня игрока.
+    *
+    * @param human игрок, которому нужно повысить параметры
+    */
+   public void increasePlayerStats(Human human) {
+       int level = human.getLevel();
+
+       int[] healthBonusTable = {0, 25, 30, 30, 40}; 
+       int[] damageBonusTable = {0, 3, 3, 4, 6};     
+
+       int maxLevel = Math.min(level, healthBonusTable.length - 1);
+
+       int bonusHealth = healthBonusTable[maxLevel];
+       int bonusDamage = damageBonusTable[level];
+
+       human.setMaxHealth(bonusHealth);
+       human.setDamage(bonusDamage);
+   }
+
+    /**
+    * Усиливает параметры противника в зависимости от уровня игрока.
+    * Здоровье и урон увеличиваются как процент от исходных значений.
+    *
+    * @param human игрок, по уровню которого корректируется сложность
+    * @param enemy противник, которого нужно усилить
+    */
+   public void adjustEnemyStats(Human human, Player enemy) {
+       int level = human.getLevel();
+
+       int[] healthBonusPercentTable = {0, 32, 30, 23, 25}; 
+       int[] damageBonusPercentTable = {0, 25, 20, 24, 26}; 
+
+    
+       if (level < 1 || level >= healthBonusPercentTable.length) {
+           level = Math.min(level, healthBonusPercentTable.length - 1);
+       }
+
+
+       int healthBonusPercent = healthBonusPercentTable[level];
+       int damageBonusPercent = damageBonusPercentTable[level];
+
+       int additionalHealth = (int) (enemy.getMaxHealth() * healthBonusPercent / 100.0);
+       int additionalDamage = (int) (enemy.getDamage() * damageBonusPercent / 100.0);
+
+       enemy.setMaxHealth(additionalHealth);
+       enemy.setDamage(additionalDamage);
+       enemy.setLevel(human.getLevel());
+   }
+   
+
+    /**
+    * Обрабатывает использование выбранного предмета из мешка.
+    * Поддерживает: малое зелье, большое зелье, крест возрождения.
+    *
+    * @param player игрок, применяющий предмет
+    * @param itemsDialog окно мешка предметов
+    */
+   public void useSelectedItemFromBag(Player player, ItemsDialog itemsDialog) {
+       int selectedIndex = itemsDialog.getSelectedIndex();
+
+       if (selectedIndex == -1) {
+           JOptionPane.showMessageDialog(null, "Пожалуйста, выберите предмет.");
+           return;
+       }
+
+       String[] allItems = ItemsDialog.allItems;
+       String selectedItemName = allItems[selectedIndex];
+
+       
+       if ("Малое зелье лечения".equals(selectedItemName)) {
+           useSmallPotion(player, itemsDialog);
+       } else if ("Большое зелье лечения".equals(selectedItemName)) {
+           useBigPotion(player, itemsDialog);
+       } else if ("Крест возрождения".equals(selectedItemName)) {
+           useReviveCross(player, itemsDialog);
+       }
+   }
+   
+   private void useSmallPotion(Player player, ItemsDialog dialog) {
+        int count = dialog.getItemCount("Малое зелье лечения");
+        if (count > 0) {
+            player.setHealth((int) (player.getMaxHealth() * 0.25));
+            dialog.addItem("Малое зелье лечения", -1); 
+            dialog.dispose(); // закрываем окно
+        } else {
+            JOptionPane.showMessageDialog(dialog, "Нет доступных предметов");
         }
     }
-
-    public void AddItems(int k1, int k2, int k3, Items[] items) {
-        double i = Math.random();
-        if (i < k1 * 0.01) {
-            items[0].setCount(1);
-        }
-        if (i >= k1 * 0.01 & i < (k1 + k2) * 0.01) {
-            items[1].setCount(1);
-        }
-        if (i >= (k1 + k2) * 0.01 & i < (k1 + k2 + k3) * 0.01) {
-            items[2].setCount(1);
+   
+   private void useBigPotion(Player player, ItemsDialog dialog) {
+        int count = dialog.getItemCount("Большое зелье лечения");
+        if (count > 0) {
+            player.setHealth((int) (player.getMaxHealth() * 0.5));
+            dialog.addItem("Большое зелье лечения", -1);
+            dialog.dispose();
+        } else {
+            JOptionPane.showMessageDialog(dialog, "Нет доступных предметов");
         }
     }
-
-    public void NewHealthHuman(Human human) {
-        int hp = 0;
-        int damage = 0;
-        switch (human.getLevel()) {
-            case 1:
-                hp = 25;
-                damage = 3;
-                break;
-            case 2:
-                hp = 30;
-                damage = 3;
-                break;
-            case 3:
-                hp = 30;
-                damage = 4;
-                break;
-            case 4:
-                hp = 40;
-                damage = 6;
-                break;
-        }
-        human.setMaxHealth(hp);
-        human.setDamage(damage);
-    }
-
-    public void NewHealthEnemy(Player enemy, Human human) {
-        int hp = 0;
-        int damage = 0;
-        switch (human.getLevel()) {
-            case 1:
-                hp = 32;
-                damage = 25;
-                break;
-            case 2:
-                hp = 30;
-                damage = 20;
-                break;
-            case 3:
-                hp = 23;
-                damage = 24;
-                break;
-            case 4:
-                hp = 25;
-                damage = 26;
-                break;
-        }
-        enemy.setMaxHealth((int) enemy.getMaxHealth() * hp / 100);
-        enemy.setDamage((int) enemy.getDamage() * damage / 100);
-        enemy.setLevel();
-    }
-
-    public void UseItem(Player human, Items[] items, String name, JDialog dialog, JDialog dialog1) {
-        switch (name) {
-            case "jRadioButton1":
-                if (items[0].getCount() > 0) {
-                    human.setHealth((int) (human.getMaxHealth() * 0.25));
-                    items[0].setCount(-1);
-                } else {
-                    dialog.setVisible(true);
-                    dialog.setBounds(300, 200, 400, 300);
-                }
-                break;
-            case "jRadioButton2":
-                if (items[1].getCount() > 0) {
-                    human.setHealth((int) (human.getMaxHealth() * 0.5));
-                    items[1].setCount(-1);
-                } else {
-                    dialog.setVisible(true);
-                    dialog.setBounds(300, 200, 400, 300);
-                }
-                break;
-            case "jRadioButton3":
-                dialog.setVisible(true);
-                dialog.setBounds(300, 200, 400, 300);
-                break;
-        }
-        
-        if(dialog.isVisible()==false){
-            dialog1.dispose();
+   
+   private void useReviveCross(Player player, ItemsDialog dialog) {
+        int count = dialog.getItemCount("Крест возрождения");
+        if (count > 0 && player.getHealth() <= 0) {
+            player.setHealth((int) (player.getMaxHealth() * 0.05)); 
+            dialog.addItem("Крест возрождения", -1);
+            dialog.dispose();
+        } else if (count > 0) {
+            JOptionPane.showMessageDialog(dialog, "Крест можно использовать только если здоровье <= 0");
+        } else {
+            JOptionPane.showMessageDialog(dialog, "Нет доступных предметов");
         }
     }
+   
 }
