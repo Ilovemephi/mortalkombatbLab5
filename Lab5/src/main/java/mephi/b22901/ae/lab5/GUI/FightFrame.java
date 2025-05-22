@@ -4,15 +4,36 @@
  */
 package mephi.b22901.ae.lab5.GUI;
 
+import mephi.b22901.ae.lab5.Player;
+import mephi.b22901.ae.lab5.*;
+import mephi.b22901.ae.lab5.battle.BattleManager;
 /**
  *
  * @author artyom_egorkin
  */
 public class FightFrame extends javax.swing.JFrame {
+    
+    private BattleManager battleManager;
+    private Player player;
 
     
     public FightFrame() {
+        this.battleManager = new BattleManager(player);
         initComponents();
+    }
+    
+    public void updatePlayerUI(Player player) {
+        humanBar.setValue(player.getHealth());
+        humanLevelLabel.setText("Уровень: " + player.getLevel());
+        humanDamageLabel.setText("Урон: " + player.getDamage());
+    }
+    
+    public void updateEnemyUI(Player enemy) {
+        if (enemy != null) {
+            opponentBar.setValue(enemy.getHealth());
+            opLevelLabel.setText("Уровень: " + enemy.getLevel());
+            opDamageLabel.setText("Урон: " + enemy.getDamage());
+        }
     }
 
     /**
@@ -186,6 +207,9 @@ public class FightFrame extends javax.swing.JFrame {
 
     private void itemsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemsButtonActionPerformed
         ItemsDialog items = new ItemsDialog(this, true);
+        items.setItemUsedListener(itemName -> {
+            battleManager.useSelectedItemFromBag(player, items, this);
+        });
         items.setVisible(true);
     }//GEN-LAST:event_itemsButtonActionPerformed
 
@@ -214,4 +238,6 @@ public class FightFrame extends javax.swing.JFrame {
     private javax.swing.JPanel opponentPanel;
     private javax.swing.JLabel turnLabel;
     // End of variables declaration//GEN-END:variables
+
+    
 }

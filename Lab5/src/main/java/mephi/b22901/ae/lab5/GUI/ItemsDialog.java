@@ -7,15 +7,24 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import mephi.b22901.ae.lab5.ItemUsedListener;
+import mephi.b22901.ae.lab5.Player;
 
 public class ItemsDialog extends JDialog {
+    
+    private ItemUsedListener itemUsedListener;
 
     private JList<String> itemsList;
     private DefaultListModel<String> listModel;
     private JButton useButton;
+    
 
     // Хранилище предметов: имя -> количество
     private Map<String, Integer> itemQuantities;
+    
+    public void setItemUsedListener(ItemUsedListener listener) {
+    this.itemUsedListener = listener;
+}
 
     public ItemsDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
@@ -61,7 +70,19 @@ public class ItemsDialog extends JDialog {
 
  
         useButton = new JButton("Использовать");
-        useButton.addActionListener(e -> handleUseItem());
+        useButton.addActionListener(e -> {
+            int selectedIndex = itemsList.getSelectedIndex();
+            if (selectedIndex == -1) {
+                JOptionPane.showMessageDialog(this, "Пожалуйста, выберите предмет.");
+                return;
+            }
+
+            String selectedItemName = allItems[selectedIndex];
+
+            if (itemUsedListener != null) {
+                itemUsedListener.onItemUsed(selectedItemName);
+            }
+        });
 
 
         panel.add(titleLabel, BorderLayout.NORTH);
@@ -82,26 +103,7 @@ public class ItemsDialog extends JDialog {
         }
     }
 
-    private void handleUseItem() {
-        int selectedIndex = itemsList.getSelectedIndex();
-        if (selectedIndex == -1) {
-            JOptionPane.showMessageDialog(this, "Пожалуйста, выберите предмет.");
-            return;
-        }
-
-        String selectedItemName = allItems[selectedIndex];
-        int count = itemQuantities.getOrDefault(selectedItemName, 0);
-
-        if (count <= 0) {
-            JOptionPane.showMessageDialog(this, "Этот предмет нельзя использовать — количество равно 0.");
-            return;
-        }
-
-        // Уменьшаем количество предмета
-        itemQuantities.put(selectedItemName, count - 1);
-        updateItemList(); // Обновляем отображение
-        JOptionPane.showMessageDialog(this, "Вы использовали: " + selectedItemName);
-    }
+   
 
     /**
      * Увеличивает количество указанного предмета
@@ -153,5 +155,9 @@ public class ItemsDialog extends JDialog {
    public int getItemCount(String itemName) {
        return itemQuantities.getOrDefault(itemName, 0);
    }
+   
+   
+   
+   
     
 }
