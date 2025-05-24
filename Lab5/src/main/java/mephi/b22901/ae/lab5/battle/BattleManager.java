@@ -80,10 +80,9 @@ public class BattleManager {
     private void useReviveCross(Player player, ItemsDialog dialog, FightFrame frame) {
         int count = dialog.getItemCount("Крест возрождения");
         if (count > 0 && player.getHealth() <= 0) {
-            player.setHealth((int) (player.getMaxHealth() * 0.05)); 
+            player.setHealth((int) (player.getMaxHealth() * 0.8)); 
             dialog.addItem("Крест возрождения", -1);
             dialog.dispose();
-
             frame.updatePlayerUI((Human) player);
         } else if (count > 0) {
             JOptionPane.showMessageDialog(dialog, "Крест можно использовать только если здоровье <= 0");
@@ -321,9 +320,9 @@ public class BattleManager {
 
                if (human.isLevelUpChoiceEnabled()) {
                    showLevelUpChoice(human, frame);
-                   human.setLevel(i + 1); // установка нового уровня
-                   human.setNextExperience(expTable[i + 1]); // следующий порог
-                   human.setLevelUpChoiceEnabled(false); // блокируем повторный выбор
+                   human.setLevel(i + 1); 
+                   human.setNextExperience(expTable[i + 1]); 
+                   human.setLevelUpChoiceEnabled(false); 
                    break;
                }
            }
@@ -379,11 +378,34 @@ public class BattleManager {
     /**
      * Проверяет, закончился ли раунд
      */
-    private void checkForRoundEnd(Human human, Player enemy, FightFrame frame, ItemsDialog itemsDialog) { // Добавил
-        if (human.getHealth() <= 0 || enemy.getHealth() <= 0) {
-            endCombatRound(human, enemy, frame, itemsDialog); // Добавил
+//    private void checkForRoundEnd(Human human, Player enemy, FightFrame frame, ItemsDialog itemsDialog) { // Добавил
+//        
+//        if (human.getHealth() <= 0 || enemy.getHealth() <= 0) {
+//            endCombatRound(human, enemy, frame, itemsDialog); // Добавил
+//        }
+//    }
+//    
+    
+    
+    
+    
+    private void checkForRoundEnd(Human human, Player enemy, FightFrame frame, ItemsDialog itemsDialog) {
+        // Сначала проверяем крест возрождения
+        if (!checkForAutoRevive(human, itemsDialog, frame)) {
+            endCombatRound(human, enemy, frame, itemsDialog);
+            return;
+        }
+
+        // После возможного восстановления проверяем конец раунда
+        if (enemy.getHealth() <= 0) {
+            endCombatRound(human, enemy, frame, itemsDialog);
         }
     }
+    
+    
+    
+    
+    
     
     /**
      * Завершает раунд и начисляет очки, опыт, выпадение предметов
@@ -418,6 +440,43 @@ public class BattleManager {
         dialog.setLocationRelativeTo(parentFrame);
         dialog.setVisible(true);
     }
+        
+        
+        
+        
+    /**
+ * Проверяет, можно ли использовать крест возрождения автоматически.
+ * Если можно — восстанавливает часть здоровья, иначе — возвращает false
+ *
+ * @param player игрок
+ * @param itemsDialog мешок предметов
+ * @param frame GUI для обновления
+ * @return true, если игрок жив, иначе false
+ */
+public boolean checkForAutoRevive(Human player, ItemsDialog itemsDialog, FightFrame frame) {
+    if (player.getHealth() <= 0) {
+        int crossCount = itemsDialog.getItemCount("Крест возрождения");
+
+        if (crossCount > 0) {
+            // Используем крест
+            useReviveCross(player, itemsDialog, frame);
+
+            // Обновляем уровень и параметры врага, если был повышение уровня
+            checkAndHandleLevelUp(player, frame);
+
+            // Сообщаем о восстановлении
+            frame.setTurnLabelText("Вы были восстановлены крестом!");
+
+            // Возвращаем true → бой продолжается
+            return true;
+        } else {
+            frame.setTurnLabelText("У вас нет креста возрождения");
+            return false;
+        }
+    }
+
+    return true; // бой продолжается
+}
 
     
 }
