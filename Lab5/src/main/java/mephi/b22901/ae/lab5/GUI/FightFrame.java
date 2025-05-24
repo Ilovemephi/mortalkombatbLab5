@@ -10,7 +10,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import mephi.b22901.ae.lab5.Player;
 import mephi.b22901.ae.lab5.*;
-import mephi.b22901.ae.lab5.Location.LocationManager;
 import mephi.b22901.ae.lab5.battle.BattleManager;
 /**
  *
@@ -196,6 +195,7 @@ public class FightFrame extends javax.swing.JFrame {
         turnLabel = new javax.swing.JLabel();
         expLabel = new javax.swing.JLabel();
         humanPointLabel = new javax.swing.JLabel();
+        weakenButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -311,28 +311,36 @@ public class FightFrame extends javax.swing.JFrame {
 
         humanPointLabel.setText("jLabel1");
 
+        weakenButton.setText("Ослабить");
+        weakenButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                weakenButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addComponent(opponentPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(opponentPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(27, 27, 27)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(expLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
+                            .addComponent(humanPointLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(turnLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(27, 27, 27)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(expLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 158, Short.MAX_VALUE)
-                                    .addComponent(humanPointLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(0, 0, Short.MAX_VALUE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(itemsButton)))
+                                .addComponent(itemsButton)
+                                .addGap(26, 26, 26)
+                                .addComponent(weakenButton, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(turnLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 238, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -362,7 +370,8 @@ public class FightFrame extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(attackButton)
                     .addComponent(defenceButton)
-                    .addComponent(itemsButton))
+                    .addComponent(itemsButton)
+                    .addComponent(weakenButton))
                 .addGap(32, 32, 32))
         );
 
@@ -384,6 +393,11 @@ public class FightFrame extends javax.swing.JFrame {
     private void attackButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_attackButtonActionPerformed
         battleManager.playerAttack(human, this, items);
     }//GEN-LAST:event_attackButtonActionPerformed
+
+    private void weakenButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_weakenButtonActionPerformed
+        battleManager.playerWeaken(human, this, items);
+
+    }//GEN-LAST:event_weakenButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -409,6 +423,7 @@ public class FightFrame extends javax.swing.JFrame {
     private javax.swing.JProgressBar opponentBar;
     private javax.swing.JPanel opponentPanel;
     private javax.swing.JLabel turnLabel;
+    private javax.swing.JButton weakenButton;
     // End of variables declaration//GEN-END:variables
 
     

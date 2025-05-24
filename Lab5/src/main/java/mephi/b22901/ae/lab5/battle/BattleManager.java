@@ -2,6 +2,7 @@
 package mephi.b22901.ae.lab5.battle;
 
 import javax.swing.JOptionPane;
+import mephi.b22901.ae.lab5.ActionCodes;
 import mephi.b22901.ae.lab5.CharacterAction;
 import mephi.b22901.ae.lab5.GUI.FightFrame;
 import mephi.b22901.ae.lab5.GUI.ItemsDialog;
@@ -208,6 +209,32 @@ public class BattleManager {
     
     
     
+    
+    
+    public void playerWeaken(Human human, FightFrame frame, ItemsDialog itemsDialog) {
+        if (isStunned) {
+            frame.setTurnLabelText("Вы оглушены. Пропуск хода.");
+            isStunned = false;
+            return;
+        }
+
+        human.setAttack(ActionCodes.WEAKEN); // 3 — ослабление
+
+        chooseNextEnemyAction();
+
+        currentEnemy.setAttack(enemyBehavior[behaviorIndex]);
+
+        performTurn(human, currentEnemy, frame);
+
+        frame.updatePlayerUI(human);
+        frame.updateEnemyUI(currentEnemy);
+
+        checkForRoundEnd(human, currentEnemy, frame, itemsDialog);
+    }
+    
+    
+    
+    
     private void performTurn(Player p1, Player p2, FightFrame frame) {
         int p1Action = p1.getAttack();
         int p2Action = p2.getAttack();
@@ -239,10 +266,27 @@ public class BattleManager {
             case "-11": // Оглушённый игрок, враг атакует
                 handleStunnedPlayerWhileEnemyAttacks(p1, p2, frame);
                 break;
+            case "30": // Игрок ослабляет, враг защищается
+                handleWeakenWhileEnemyDefends((Human) p1, p2, frame);
+                break;
+            case "31": // Игрок ослабляет, враг атакует
+                handleWeakenFailOnAttackingEnemy((Human) p1, p2, frame);
+                break;
+            case "03": // Враг (маг) ослабляет игрока, игрок защищается
+                handleEnemyWeakenWhilePlayerDefends(p1, (Human) p2, frame);
+                break;
+            case "13": // Враг (маг) ослабляет игрока, игрок атакует
+                handleEnemyWeakenFailOnAttackingPlayer(p1, (Human) p2, frame);
+                break;
             default:
                 frame.setTurnLabelText("Неизвестное действие");
                 break;
         }
+        
+        p1.decrementWeakenTurn();
+        p1.decrementBuffTurn();
+        p2.decrementWeakenTurn();
+        p2.decrementBuffTurn();
     }
     
     
@@ -253,12 +297,14 @@ public class BattleManager {
         frame.setTurnLabelText("Босс восстанавливает " + heal + " здоровья!");
         frame.updateEnemyUI(boss);
     } else { // Атака
-        int doubleDamage = player.getDamage() * 2;
-        boss.setHealth(boss.getHealth() - doubleDamage);
-        bossTotalDamageTaken += doubleDamage;
-        frame.setTurnLabelText("Вы прервали регенерацию босса! Босс получил двойной урон: " + doubleDamage);
+        int attackValue = player.getModifiedDamage() * 2;                // Используем дебаффы/баффы игрока и удваиваем результат
+        int finalDamage = boss.receiveModifiedDamage(attackValue);        // Учтём уязвимость босса к урону (если активен дебафф)
+        boss.setHealth(boss.getHealth() - finalDamage);
+        bossTotalDamageTaken += finalDamage;
+        frame.setTurnLabelText("Вы прервали регенерацию босса! Босс получил двойной урон: " + finalDamage);
         frame.updateEnemyUI(boss);
     }
+
 }
     
     /**
@@ -266,34 +312,43 @@ public class BattleManager {
      */
     private void handlePlayerAttackWhileEnemyDefends(Player p1, Player p2, FightFrame frame) {
         double v = Math.random();
-        int damage;
         if (p2 instanceof ShaoKahn && v < 0.15) {
-            damage = (int)(p1.getDamage() * 0.5);
-            p2.setHealth(-damage);
-            bossTotalDamageTaken += damage;
+            // атака в блок босса - только 50% урона
+            int rawDamage = (int)(p1.getModifiedDamage() * 0.5);          // урон с учетом дебаффов (потом только 50% от этого)
+            int finalDamage = p2.receiveModifiedDamage(rawDamage);        // если на боссе дебафф - ещё +25%
+            p2.setHealth(-finalDamage);
+            bossTotalDamageTaken += finalDamage;
             frame.setTurnLabelText("Блок игрока пробит!");
         } else {
-            p2.setHealth(-p1.getDamage());
+            int rawDamage = p1.getModifiedDamage();                       // урон с учётом всех эффектов
+            int finalDamage = p2.receiveModifiedDamage(rawDamage);        // учитываем возможную уязвимость к урону
+            p2.setHealth(-finalDamage);
             frame.setTurnLabelText(p2.getName() + " контратакует");
         }
-        
-         
     }
     
     
     /**
-     * Оба атакуют — наносится урон только первому
-     */
-    private void handleBothAttack(Player p1, Player p2, FightFrame frame) {
-        int damageToEnemy = p1.getDamage();
-        int damageToPlayer = p2.getDamage();
-        p2.setHealth(-damageToEnemy);
-        p1.setHealth(-damageToPlayer);
-        frame.setTurnLabelText(p1.getName() + " и " + p2.getName() + " атакуют одновременно");
-        if (p2 instanceof ShaoKahn) {
-            bossTotalDamageTaken += damageToEnemy;
-        }
-    }
+    * Оба атакуют — наносится урон обоим
+    */
+   private void handleBothAttack(Player p1, Player p2, FightFrame frame) {
+       // Урон от первого к второму (с учётом всех эффектов)
+       int damageToEnemyRaw = p1.getModifiedDamage();
+       int damageToEnemyFinal = p2.receiveModifiedDamage(damageToEnemyRaw);
+
+       // Урон от второго к первому (с учётом всех эффектов)
+       int damageToPlayerRaw = p2.getModifiedDamage();
+       int damageToPlayerFinal = p1.receiveModifiedDamage(damageToPlayerRaw);
+
+       p2.setHealth(-damageToEnemyFinal);
+       p1.setHealth(-damageToPlayerFinal);
+
+       frame.setTurnLabelText(p1.getName() + " и " + p2.getName() + " атакуют одновременно");
+
+       if (p2 instanceof ShaoKahn) {
+           bossTotalDamageTaken += damageToEnemyFinal;
+       }
+   }
     
     /**
      * Оба защищаются — шанс оглушения
@@ -309,12 +364,14 @@ public class BattleManager {
     }
     
     /**
-     * Игрок защищается, враг атакует — игрок получает 50% урона
-     */
-    private void handlePlayerDefendWhileEnemyAttacks(Player p1, Player p2, FightFrame frame) {
-        p1.setHealth(-(int)(p2.getDamage() * 0.5));
-        frame.setTurnLabelText(p2.getName() + " атакует");
-    }
+    * Игрок защищается, враг атакует — игрок получает 50% урона (с учётом баффов/дебаффов)
+    */
+   private void handlePlayerDefendWhileEnemyAttacks(Player p1, Player p2, FightFrame frame) {
+       int attackValue = (int)(p2.getModifiedDamage() * 0.5);           // урон врага с учётом ослаблений, потом делим пополам
+       int finalDamage = p1.receiveModifiedDamage(attackValue);         // если на игроке дебафф — урон дополнительно +25%
+       p1.setHealth(-finalDamage);
+       frame.setTurnLabelText(p2.getName() + " атакует");
+   }
 
     /**
      * Игрок оглушён, враг защищается — ничего не происходит
@@ -325,12 +382,68 @@ public class BattleManager {
     
     
     /**
-     * Игрок оглушён, враг атакует — игрок получает полный урон
-     */
-    private void handleStunnedPlayerWhileEnemyAttacks(Player p1, Player p2, FightFrame frame) {
-        p1.setHealth(-p2.getDamage());
-        frame.setTurnLabelText(p1.getName() + " был оглушён, " + p2.getName() + " атакует");
+    * Игрок оглушён, враг атакует — игрок получает полный урон (с учётом всех эффектов)
+    */
+   private void handleStunnedPlayerWhileEnemyAttacks(Player p1, Player p2, FightFrame frame) {
+       int attackValue = p2.getModifiedDamage();            // урон с учетом эффектов врага
+       int finalDamage = p1.receiveModifiedDamage(attackValue); // урон с учетом уязвимостей игрока
+       p1.setHealth(-finalDamage);
+       frame.setTurnLabelText(p1.getName() + " был оглушён, " + p2.getName() + " атакует");
+   }
+    
+    
+    
+    // 1. Игрок ослабляет, враг защищается
+    private void handleWeakenWhileEnemyDefends(Human player, Player enemy, FightFrame frame) {
+        double chance = Math.random();
+        int nTurns = Math.max(1, player.getLevel());
+        if (chance < 0.75) {
+            // Оба получают дебафф на n ходов
+            enemy.applyWeakenDebuff(nTurns);   // теперь по врагу урон +25%
+            player.applyWeakenDebuff(nTurns);  // у игрока урон -50%
+            frame.setTurnLabelText("Успех! " + enemy.getName() + " ослаблен (" + nTurns + " ходов), но вы сами временно атакуете слабее.");
+        } else {
+            frame.setTurnLabelText("Промах: противник успешно защищается, никто не ослаблен.");
+        }
     }
+    
+    
+    
+    // 2. Игрок ослабляет, враг атакует (ослабление не удалось, игрок получает бафф урона на 1 ход)
+    private void handleWeakenFailOnAttackingEnemy(Human player, Player enemy, FightFrame frame) {
+        player.applyBuffDamage(0.15, 1); // +15% к урону (1 ход)
+        frame.setTurnLabelText(enemy.getName() + " перебивает вашу попытку ослабить! Ваша следующая атака усилена на 15%.");
+    }
+    
+    
+    
+    // 3. Враг ослабляет игрока, игрок защищается
+    private void handleEnemyWeakenWhilePlayerDefends(Player enemy, Human player, FightFrame frame) {
+        double chance = Math.random();
+        int nTurns = Math.max(1, enemy.getLevel());
+        if (chance < 0.75) {
+            player.applyWeakenDebuff(nTurns);  // теперь по игроку урон +25%
+            enemy.applyWeakenDebuff(nTurns);   // у врага урон -50%
+            frame.setTurnLabelText("Вас ослабили на " + nTurns + " ходов! И противник теперь атакует слабее.");
+        } else {
+            frame.setTurnLabelText("Соперник не смог вас ослабить — вы хорошо защищаетесь.");
+        }
+    }
+
+    
+    // 4. Враг ослабляет, игрок атакует (ослабление не удалось, враг получает бафф урона на 1 ход)
+    private void handleEnemyWeakenFailOnAttackingPlayer(Player enemy, Human player, FightFrame frame) {
+        enemy.applyBuffDamage(0.15, 1); // +15% к урону (1 ход)
+        frame.setTurnLabelText("Вы сорвали ослабление врага, он разозлился! Его следующая атака усилена на 15%.");
+    }
+
+    
+
+
+    
+    
+    
+    
 
     /**
      * Получает следующее действие из поведения врага
