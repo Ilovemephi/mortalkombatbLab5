@@ -17,6 +17,8 @@ public class BattleManager {
     private int[] enemyBehavior; // шаблон действий врага
     private int behaviorIndex = -1;
     private boolean isStunned = false;
+    
+    private int bossTotalDamageTaken = 0;
 
     private final CharacterAction characterAction;
 
@@ -132,6 +134,11 @@ public class BattleManager {
 
         player.setNewHealth(player.getMaxHealth());
         currentEnemy.setNewHealth(currentEnemy.getMaxHealth());
+        
+        if (enemy instanceof ShaoKahn){
+            bossTotalDamageTaken = 0;
+
+        }
 
         frame.updatePlayerUI(player);
         frame.updateEnemyUI(currentEnemy);
@@ -204,6 +211,12 @@ public class BattleManager {
     private void performTurn(Player p1, Player p2, FightFrame frame) {
         int p1Action = p1.getAttack();
         int p2Action = p2.getAttack();
+        
+        if (p2 instanceof ShaoKahn && p2Action == 2) {
+            handleBossRegeneration(p1, (ShaoKahn)p2, p1Action, frame);
+            return;
+        }
+
 
         String turnType = Integer.toString(p1Action) + Integer.toString(p2Action);
 
@@ -232,19 +245,39 @@ public class BattleManager {
         }
     }
     
+    
+    private void handleBossRegeneration(Player player, ShaoKahn boss, int playerAction, FightFrame frame) {
+    if (playerAction == 0) { // Защита
+        int heal = (int)(bossTotalDamageTaken * 0.5);
+        boss.setHealth(heal);
+        frame.setTurnLabelText("Босс восстанавливает " + heal + " здоровья!");
+        frame.updateEnemyUI(boss);
+    } else { // Атака
+        int doubleDamage = player.getDamage() * 2;
+        boss.setHealth(boss.getHealth() - doubleDamage);
+        bossTotalDamageTaken += doubleDamage;
+        frame.setTurnLabelText("Вы прервали регенерацию босса! Босс получил двойной урон: " + doubleDamage);
+        frame.updateEnemyUI(boss);
+    }
+}
+    
     /**
      * Обрабатывает ситуацию: игрок атакует, враг защищается.
      */
     private void handlePlayerAttackWhileEnemyDefends(Player p1, Player p2, FightFrame frame) {
         double v = Math.random();
-
+        int damage;
         if (p2 instanceof ShaoKahn && v < 0.15) {
-            p2.setHealth(-(int)(p1.getDamage() * 0.5));
+            damage = (int)(p1.getDamage() * 0.5);
+            p2.setHealth(-damage);
+            bossTotalDamageTaken += damage;
             frame.setTurnLabelText("Блок игрока пробит!");
         } else {
             p2.setHealth(-p1.getDamage());
             frame.setTurnLabelText(p2.getName() + " контратакует");
         }
+        
+         
     }
     
     
@@ -252,9 +285,14 @@ public class BattleManager {
      * Оба атакуют — наносится урон только первому
      */
     private void handleBothAttack(Player p1, Player p2, FightFrame frame) {
-        p2.setHealth(-p1.getDamage());
-        p1.setHealth(-p2.getDamage());
+        int damageToEnemy = p1.getDamage();
+        int damageToPlayer = p2.getDamage();
+        p2.setHealth(-damageToEnemy);
+        p1.setHealth(-damageToPlayer);
         frame.setTurnLabelText(p1.getName() + " и " + p2.getName() + " атакуют одновременно");
+        if (p2 instanceof ShaoKahn) {
+            bossTotalDamageTaken += damageToEnemy;
+        }
     }
     
     /**

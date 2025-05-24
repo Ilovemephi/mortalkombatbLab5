@@ -27,7 +27,9 @@ public class CharacterAction {
        {1, 0},           //  0: Attack → Defend
        {1, 1, 0},        //  1: Attack → Attack → Defend
        {0, 1, 0},        //  2: Defend → Attack → Defend
-       {1, 1, 1, 1}      //  3: All attacks
+       {1, 1, 1, 1},     //  3: All attacks
+       {1, 2, 1, 0}      // 4: Босс — атака → регенерация → атака → защита
+
    };
 
    /**
@@ -156,6 +158,10 @@ public class CharacterAction {
     * @return массив с последовательностью действий (1 — атака, 0 — защита)
     */
    public int[] selectEnemyBehavior(Player enemy) {
+       
+       if (enemy instanceof ShaoKahn){
+           return enemyBehaviorPatterns[4];
+       }
 
        if ("Baraka".equals(enemy.getClass().getSimpleName())) {
            return generateEnemyBehavior(30, 60, 10, 0, Math.random());
