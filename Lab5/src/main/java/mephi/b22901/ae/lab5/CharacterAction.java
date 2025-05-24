@@ -214,8 +214,8 @@ public class CharacterAction {
    public void adjustEnemyStatsToPlayer(Human human, Player[] enemies) {
         for (int i = 0; i < enemies.length; i++) {
             if (enemies[i] != null && !(enemies[i] instanceof ShaoKahn)) {
-                enemies[i].setMaxHealth((int) (enemies[i].getMaxHealth()  * 0.8)); 
-                enemies[i].setDamage((int) (enemies[i].getDamage() * 0.8)); 
+                enemies[i].setMaxHealth((int) (enemies[i].getMaxHealth()  * 0.9)); 
+                enemies[i].setDamage((int) (enemies[i].getDamage() * 0.9)); 
             }
         }
     }
