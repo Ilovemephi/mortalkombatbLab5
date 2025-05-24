@@ -122,6 +122,28 @@ public class BattleManager {
     }
     
     
+    public void startSpecificEnemyRound(FightFrame frame, Player enemy) {
+        this.currentEnemy = enemy;
+
+        // Поведение для обычных врагов (для босса можно сделать особым, если нужно)
+        enemyBehavior = characterAction.selectEnemyBehavior(currentEnemy);
+        behaviorIndex = -1;
+        isStunned = false;
+
+        player.setNewHealth(player.getMaxHealth());
+        currentEnemy.setNewHealth(currentEnemy.getMaxHealth());
+
+        frame.updatePlayerUI(player);
+        frame.updateEnemyUI(currentEnemy);
+
+        checkAndHandleLevelUp(player, frame);
+    }
+
+    
+    
+    
+    
+    
     /**
      * Игрок выбирает атаковать.
      *
@@ -425,11 +447,12 @@ public class BattleManager {
         showResultDialog(frame, "win");
 
 
-        startNewRound(frame);
+        //startNewRound(frame);
+        frame.onEnemyDefeated();
     } else {
         frame.setTurnLabelText("Вы проиграли " + enemy.getName());
         showResultDialog(frame, "lose");
-        startNewRound(frame);
+        frame.onEnemyDefeated();
     }
 }
     
@@ -477,6 +500,8 @@ public boolean checkForAutoRevive(Human player, ItemsDialog itemsDialog, FightFr
 
     return true; // бой продолжается
 }
+
+
 
     
 }

@@ -4,6 +4,9 @@
  */
 package mephi.b22901.ae.lab5.GUI;
 
+import javax.swing.JOptionPane;
+
+
 /**
  *
  * @author artyom_egorkin
@@ -87,9 +90,24 @@ public class MainFrame1 extends javax.swing.JFrame {
     }//GEN-LAST:event_buttonShowResultsActionPerformed
 
     private void startGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startGameButtonActionPerformed
-        FightFrame fghtFrame = new FightFrame();
-        fghtFrame.setLocationRelativeTo(this);
-        fghtFrame.setVisible(true);
+//        FightFrame fghtFrame = new FightFrame();
+//        fghtFrame.setLocationRelativeTo(this);
+//        fghtFrame.setVisible(true);
+
+
+        String input = JOptionPane.showInputDialog(this, "Введите количество локаций для прохождения:", "Настройка игры", JOptionPane.QUESTION_MESSAGE);
+
+        if (input != null && input.matches("\\d+") && Integer.parseInt(input) > 0) {
+            int locationCount = Integer.parseInt(input);
+
+            // Передаём количество локаций в FightFrame через новый конструктор
+            FightFrame fightFrame = new FightFrame(locationCount);
+            fightFrame.setLocationRelativeTo(this);
+            fightFrame.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "Введите положительное целое число!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
+        }
+        
     }//GEN-LAST:event_startGameButtonActionPerformed
 
     /**

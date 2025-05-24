@@ -4,10 +4,13 @@
  */
 package mephi.b22901.ae.lab5.GUI;
 
+import java.util.Random;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import mephi.b22901.ae.lab5.Player;
 import mephi.b22901.ae.lab5.*;
+import mephi.b22901.ae.lab5.Location.LocationManager;
 import mephi.b22901.ae.lab5.battle.BattleManager;
 /**
  *
@@ -20,12 +23,27 @@ public class FightFrame extends javax.swing.JFrame {
     private CharacterAction characterAction;
     private BattleManager battleManager;
     ItemsDialog items = new ItemsDialog(this, true);
+    
+    
+    private int totalLocations;
+    private int currentLocation;
+    private int enemiesRemaining;
+    private boolean fightingBoss;
+
 
     
-    public FightFrame() {
-        // Сначала создаём игрока
-        this.human = new Human(0, 80, 16, 1); // предположим, что у тебя есть такой конструктор
 
+    
+    public FightFrame(int locationCount) {  
+        
+        this.totalLocations = locationCount;
+        this.currentLocation = 1;
+        
+        
+        
+        // Сначала создаём игрока
+        this.human = new Human(0, 80, 16, 1); 
+        this.human.resetToDefault();
         // Затем создаём CharacterAction и инициализируем противников
         this.characterAction = new CharacterAction();
         this.characterAction.initializeEnemies(); // инициализация всех врагов
@@ -36,8 +54,10 @@ public class FightFrame extends javax.swing.JFrame {
 
         initComponents();
 
-        // Выбираем первого врага и обновляем интерфейс
-        battleManager.startNewRound(this);
+//        // Выбираем первого врага и обновляем интерфейс
+//        battleManager.startNewRound(this);
+        
+        startNextLocation();
     }
     
 
@@ -94,7 +114,61 @@ public class FightFrame extends javax.swing.JFrame {
     public void setTurnLabelText(String text) {
     turnLabel.setText(text);
 }
+    
+    
+    private void startNextLocation() {
+        if (currentLocation <= totalLocations) {
+            JOptionPane.showMessageDialog(this, "Локация " + currentLocation + " из " + totalLocations);
 
+            fightingBoss = false;
+            enemiesRemaining = getRandomEnemyCount(human.getLevel());
+
+            startEnemyBattle();
+        } else {
+            JOptionPane.showMessageDialog(this, "Поздравляем! Вы прошли все локации!");
+            
+            int finalScore = human.getPoints();
+            // Здесь можно будет сохранить очки
+            this.dispose();
+        }
+    }
+    
+    private int getRandomEnemyCount(int level) {
+        return new Random().nextInt(2) + level; // Например: level до level+1 врагов
+    }
+    
+    private void startEnemyBattle() {
+        fightingBoss = false;
+        battleManager.startNewRound(this);
+    }
+    
+    private void startBossBattle() {
+        fightingBoss = true;
+        Player boss = characterAction.chooseBoss(human);
+        battleManager.startSpecificEnemyRound(this, boss);  // этот метод создадим в следующем шаге
+    }
+    
+    public void onEnemyDefeated() {
+        if (fightingBoss) {
+            currentLocation++;
+            startNextLocation(); // переход на следующую локацию
+        } else {
+            enemiesRemaining--;
+            if (enemiesRemaining > 0) {
+                startEnemyBattle(); // ещё враги остались
+            } else {
+                startBossBattle(); // все враги побеждены — вызываем босса
+            }
+        }
+    }
+
+
+
+    
+
+
+
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

@@ -56,7 +56,19 @@ public class Human extends Player{
     }
     
     
-   
+   public void resetToDefault() {
+    this.setLevel(0);
+    this.setNewHealth(-this.health + 80);
+    this.setMaxHealth(-this.maxHealth + 80);
+    this.setDamage(-this.damage + 16);
+    this.setAttack(1);
+    this.setExperience(-this.experience);
+    this.setNextExperience(40);
+    this.setPoints(-this.points);
+    this.win = 0;
+    this.levelUpChoiceEnabled = true;
+}
+
     
     
     @Override
