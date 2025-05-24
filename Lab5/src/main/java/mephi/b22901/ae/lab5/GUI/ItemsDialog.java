@@ -97,9 +97,14 @@ public class ItemsDialog extends JDialog {
      */
     private void updateItemList() {
         listModel.clear();
+
         for (String itemName : allItems) {
             int count = itemQuantities.getOrDefault(itemName, 0);
-            listModel.addElement(itemName + ", " + count);
+            if (count > 0) {
+                listModel.addElement(itemName + ", " + count + " шт.");
+            } else {
+                listModel.addElement(itemName + ", 0 шт.");
+            }
         }
     }
 
@@ -111,13 +116,23 @@ public class ItemsDialog extends JDialog {
      * @param itemName Название предмета
      * @param amount   Количество для добавления
      */
-    public void addItem(String itemName, int amount) {
-        if (itemQuantities.containsKey(itemName)) {
-            itemQuantities.put(itemName, itemQuantities.get(itemName) + amount);
-            updateItemList();
-        } else {
-            // Если предмет не входит в список по умолчанию
-            JOptionPane.showMessageDialog(this, "Неизвестный предмет: " + itemName);
+    /**
+ * Добавляет указанный предмет в мешок
+ */
+public void addItem(String itemName, int amount) {
+    if (!itemQuantities.containsKey(itemName)) {
+        JOptionPane.showMessageDialog(this, "Предмет " + itemName + " не существует");
+        return;
+    }
+
+    int current = itemQuantities.get(itemName);
+    int newCount = current + amount;
+
+    if (newCount >= 0 && newCount <= 99) {
+        itemQuantities.put(itemName, newCount);
+        updateItemList(); // обновляем список в JList
+    } else {
+            JOptionPane.showMessageDialog(this, "Невозможно изменить количество предмета: " + itemName);
         }
     }
 

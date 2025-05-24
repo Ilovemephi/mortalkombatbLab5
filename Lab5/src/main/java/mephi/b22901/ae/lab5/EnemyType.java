@@ -6,5 +6,6 @@ public enum EnemyType {
     SUBZERO,
     LIUKANG,
     SONYABLADE,
-    SHAOKAHN
+    SHAOKAHN, 
+    UNKNOWN
 }

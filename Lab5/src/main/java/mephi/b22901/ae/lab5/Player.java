@@ -63,6 +63,10 @@ public abstract class Player {
     public void setLevel(){
         this.level++;
     }
+    
+    public void restoreFullHealth() {
+        this.health = this.maxHealth;
+    }
 
 
     public abstract String getName();
