@@ -11,12 +11,18 @@ import javax.swing.JOptionPane;
  * @author artyom_egorkin
  */
 public class FinalWinDialog extends javax.swing.JDialog {
+    
+    private int points; // Сколько очков набрал игрок
+    private FinalTableDialog recordsDialog; // Окно с таблицей рекордов
 
     /**
      * Creates new form FinalWinDialog
      */
-    public FinalWinDialog(java.awt.Frame parent, boolean modal) {
+    public FinalWinDialog(java.awt.Frame parent, boolean modal, int points, FinalTableDialog recordsDialog) {
         super(parent, modal);
+        this.points = points;
+        this.recordsDialog = recordsDialog;
+
         initComponents();
     }
 
@@ -98,6 +104,12 @@ public class FinalWinDialog extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(this, "Пожалуйста, введите имя персонажа.");
             return;
         }
+        // добавляем в итоговую таблицу
+        if (recordsDialog != null) {
+            recordsDialog.addRecord(name, points);
+            recordsDialog.setVisible(true); // показать таблицу
+        }
+
         this.dispose();
     }//GEN-LAST:event_FinishGameButtonActionPerformed
 

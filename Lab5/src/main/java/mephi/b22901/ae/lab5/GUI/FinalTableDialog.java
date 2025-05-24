@@ -6,6 +6,7 @@ package mephi.b22901.ae.lab5.GUI;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import mephi.b22901.ae.lab5.ExcelExporter;
 
 public class FinalTableDialog extends JDialog {
 
@@ -63,6 +64,28 @@ public class FinalTableDialog extends JDialog {
     public void addRecord(String name, int score) {
         tableModel.addRow(new Object[]{name, score});
     }
+    
+    
+    
+    public void exportToExcel(Component parent) {
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Сохранить как Excel файл");
+    fileChooser.setSelectedFile(new java.io.File("Рекорды.xlsx"));
+    int userSelection = fileChooser.showSaveDialog(parent);
+
+    if (userSelection == JFileChooser.APPROVE_OPTION) {
+        java.io.File fileToSave = fileChooser.getSelectedFile();
+        try {
+            ExcelExporter.exportTable(recordsTable, fileToSave);
+            JOptionPane.showMessageDialog(parent,
+                "Данные успешно экспортированы в\n" + fileToSave.getAbsolutePath());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(parent,
+                "Ошибка экспорта: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+}
 
     /**
      * Очищает таблицу (например, при перезапуске игры)

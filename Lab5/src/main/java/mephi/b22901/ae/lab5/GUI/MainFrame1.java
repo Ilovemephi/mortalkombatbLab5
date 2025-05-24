@@ -12,12 +12,15 @@ import javax.swing.JOptionPane;
  * @author artyom_egorkin
  */
 public class MainFrame1 extends javax.swing.JFrame {
+    
+    private FinalTableDialog recordsDialog;
 
     /**
      * Creates new form MainFrame1
      */
     public MainFrame1() {
         initComponents();
+        recordsDialog = new FinalTableDialog(this, false);
     }
 
     /**
@@ -32,6 +35,7 @@ public class MainFrame1 extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         buttonShowResults = new javax.swing.JButton();
         startGameButton = new javax.swing.JButton();
+        buttonExportExcel = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -49,14 +53,23 @@ public class MainFrame1 extends javax.swing.JFrame {
             }
         });
 
+        buttonExportExcel.setText("Экспортировать");
+        buttonExportExcel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonExportExcelActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(buttonShowResults, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+                .addGap(33, 33, 33)
+                .addComponent(buttonExportExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
+                .addComponent(buttonShowResults, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(70, 70, 70)
                 .addComponent(startGameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -64,9 +77,10 @@ public class MainFrame1 extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(186, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(startGameButton, javax.swing.GroupLayout.DEFAULT_SIZE, 75, Short.MAX_VALUE)
-                    .addComponent(buttonShowResults, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(startGameButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonShowResults, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(buttonExportExcel, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(39, 39, 39))
         );
 
@@ -74,7 +88,9 @@ public class MainFrame1 extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -85,8 +101,7 @@ public class MainFrame1 extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonShowResultsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonShowResultsActionPerformed
-       FinalTableDialog recordsDialog = new FinalTableDialog(this, false);
-       recordsDialog.setVisible(true);
+        recordsDialog.setVisible(true);
     }//GEN-LAST:event_buttonShowResultsActionPerformed
 
     private void startGameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startGameButtonActionPerformed
@@ -101,14 +116,21 @@ public class MainFrame1 extends javax.swing.JFrame {
             int locationCount = Integer.parseInt(input);
 
             // Передаём количество локаций в FightFrame через новый конструктор
-            FightFrame fightFrame = new FightFrame(locationCount);
+            //FightFrame fightFrame = new FightFrame(locationCount);
+            FightFrame fightFrame = new FightFrame(locationCount, recordsDialog);
             fightFrame.setLocationRelativeTo(this);
             fightFrame.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Введите положительное целое число!", "Ошибка ввода", JOptionPane.ERROR_MESSAGE);
         }
         
+        
+        
     }//GEN-LAST:event_startGameButtonActionPerformed
+
+    private void buttonExportExcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonExportExcelActionPerformed
+        recordsDialog.exportToExcel(this);
+    }//GEN-LAST:event_buttonExportExcelActionPerformed
 
     /**
      * @param args the command line arguments
@@ -116,6 +138,7 @@ public class MainFrame1 extends javax.swing.JFrame {
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton buttonExportExcel;
     private javax.swing.JButton buttonShowResults;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JButton startGameButton;

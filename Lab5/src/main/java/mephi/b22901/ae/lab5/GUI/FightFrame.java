@@ -22,7 +22,7 @@ public class FightFrame extends javax.swing.JFrame {
     private CharacterAction characterAction;
     private BattleManager battleManager;
     ItemsDialog items = new ItemsDialog(this, true);
-    
+    FinalTableDialog recordsDialog;
     
     private int totalLocations;
     private int currentLocation;
@@ -33,8 +33,9 @@ public class FightFrame extends javax.swing.JFrame {
     
 
     
-    public FightFrame(int locationCount) {  
+    public FightFrame(int locationCount, FinalTableDialog recordsDialog) {  
         
+        this.recordsDialog = recordsDialog;
         this.totalLocations = locationCount;
         this.currentLocation = 1;
         
@@ -128,6 +129,11 @@ public class FightFrame extends javax.swing.JFrame {
             
             int finalScore = human.getPoints();
             // Здесь можно будет сохранить очки
+            if (recordsDialog == null) {
+                recordsDialog = new FinalTableDialog(this, true);
+            }
+            FinalWinDialog winDialog = new FinalWinDialog(this, true, finalScore, recordsDialog);
+            winDialog.setVisible(true);
             this.dispose();
         }
     }
