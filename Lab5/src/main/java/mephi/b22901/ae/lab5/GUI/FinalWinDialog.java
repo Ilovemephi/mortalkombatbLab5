@@ -113,9 +113,7 @@ public class FinalWinDialog extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_FinishGameButtonActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

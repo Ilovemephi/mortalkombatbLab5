@@ -93,9 +93,7 @@ public class WinOrLoseDialog extends javax.swing.JDialog {
         this.dispose();
     }//GEN-LAST:event_confirmButtonActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

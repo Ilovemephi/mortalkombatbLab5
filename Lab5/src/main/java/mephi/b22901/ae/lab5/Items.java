@@ -6,7 +6,7 @@ package mephi.b22901.ae.lab5;
 
 /**
  *
- * @author Мария
+ * @author artyom_egorkin
  */
 public class Items {
     

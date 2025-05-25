@@ -132,9 +132,7 @@ public class MainFrame1 extends javax.swing.JFrame {
         recordsDialog.exportToExcel(this);
     }//GEN-LAST:event_buttonExportExcelActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
+    
     
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
