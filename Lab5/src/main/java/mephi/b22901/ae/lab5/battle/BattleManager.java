@@ -124,11 +124,15 @@ public class BattleManager {
         checkAndHandleLevelUp(player, frame);
     }
     
-    
+    /**
+     * Начинает новый раунд с учетом Бооса
+     * @param frame GUI для обновления
+     * @param enemy соперник в раунде
+     */
     public void startSpecificEnemyRound(FightFrame frame, Player enemy) {
         this.currentEnemy = enemy;
 
-        // Поведение для обычных врагов (для босса можно сделать особым, если нужно)
+        
         enemyBehavior = characterAction.selectEnemyBehavior(currentEnemy);
         behaviorIndex = -1;
         isStunned = false;
@@ -210,7 +214,12 @@ public class BattleManager {
     
     
     
-    
+    /**
+     * Игрок выбирает ослабить 
+     * @param human игрок
+     * @param frame GUI
+     * @param itemsDialog окно предметов 
+     */ 
     public void playerWeaken(Human human, FightFrame frame, ItemsDialog itemsDialog) {
         if (isStunned) {
             frame.setTurnLabelText("Вы оглушены. Пропуск хода.");
@@ -233,7 +242,12 @@ public class BattleManager {
     }
     
     
-    
+    /**
+     * Ход бойца
+     * @param p1 Боец за которого играет пользователь 
+     * @param p2 Соперник 
+     * @param frame GUI 
+     */
     
     private void performTurn(Player p1, Player p2, FightFrame frame) {
         int p1Action = p1.getAttack();
@@ -289,7 +303,9 @@ public class BattleManager {
         p2.decrementBuffTurn();
     }
     
-    
+    /**
+     * Обрабатывает ситуацию: босс пытается регенирировать здоровье.
+     */
     private void handleBossRegeneration(Player player, ShaoKahn boss, int playerAction, FightFrame frame) {
     if (playerAction == 0) { // Защита
         int heal = (int)(bossTotalDamageTaken * 0.5);
@@ -299,7 +315,7 @@ public class BattleManager {
     } else { // Атака
         int attackValue = player.getModifiedDamage() * 2;                // Используем дебаффы/баффы игрока и удваиваем результат
         int finalDamage = boss.receiveModifiedDamage(attackValue);        // Учтём уязвимость босса к урону (если активен дебафф)
-        boss.setHealth(boss.getHealth() - finalDamage);
+        boss.setHealth(-(boss.getHealth() - finalDamage));
         bossTotalDamageTaken += finalDamage;
         frame.setTurnLabelText("Вы прервали регенерацию босса! Босс получил двойной урон: " + finalDamage);
         frame.updateEnemyUI(boss);
@@ -393,7 +409,9 @@ public class BattleManager {
     
     
     
-    // 1. Игрок ослабляет, враг защищается
+    /**
+     * Обрабатывает ситуацию: игрок ослабляет, враг защищается.
+     */
     private void handleWeakenWhileEnemyDefends(Human player, Player enemy, FightFrame frame) {
         double chance = Math.random();
         int nTurns = Math.max(1, player.getLevel());
@@ -409,7 +427,9 @@ public class BattleManager {
     
     
     
-    // 2. Игрок ослабляет, враг атакует (ослабление не удалось, игрок получает бафф урона на 1 ход)
+    /** 2. Игрок ослабляет, враг атакует (ослабление не удалось, игрок получает бафф урона на 1 ход)
+     * 
+     */
     private void handleWeakenFailOnAttackingEnemy(Human player, Player enemy, FightFrame frame) {
         player.applyBuffDamage(0.15, 1); // +15% к урону (1 ход)
         frame.setTurnLabelText(enemy.getName() + " перебивает вашу попытку ослабить! Ваша следующая атака усилена на 15%.");
@@ -417,7 +437,9 @@ public class BattleManager {
     
     
     
-    // 3. Враг ослабляет игрока, игрок защищается
+    /** 3. Враг ослабляет игрока, игрок защищается
+     * 
+     */
     private void handleEnemyWeakenWhilePlayerDefends(Player enemy, Human player, FightFrame frame) {
         double chance = Math.random();
         int nTurns = Math.max(1, enemy.getLevel());
@@ -431,7 +453,9 @@ public class BattleManager {
     }
 
     
-    // 4. Враг ослабляет, игрок атакует (ослабление не удалось, враг получает бафф урона на 1 ход)
+    /** 4. Враг ослабляет, игрок атакует (ослабление не удалось, враг получает бафф урона на 1 ход)
+     * 
+     */
     private void handleEnemyWeakenFailOnAttackingPlayer(Player enemy, Human player, FightFrame frame) {
         enemy.applyBuffDamage(0.15, 1); // +15% к урону (1 ход)
         frame.setTurnLabelText("Вы сорвали ослабление врага, он разозлился! Его следующая атака усилена на 15%.");
@@ -561,7 +585,9 @@ public class BattleManager {
     
     
     
-    
+    /**
+     * Обработка конца раунда
+     */
     private void checkForRoundEnd(Human human, Player enemy, FightFrame frame, ItemsDialog itemsDialog) {
         // Сначала проверяем крест возрождения
         if (!checkForAutoRevive(human, itemsDialog, frame)) {

@@ -139,7 +139,7 @@ public class FightFrame extends javax.swing.JFrame {
     }
     
     private int getRandomEnemyCount(int level) {
-        return new Random().nextInt(2) + level; // Например: level до level+1 врагов
+        return new Random().nextInt(3) + level; // Например: level до level+1 врагов
     }
     
     private void startEnemyBattle() {
@@ -150,7 +150,7 @@ public class FightFrame extends javax.swing.JFrame {
     private void startBossBattle() {
         fightingBoss = true;
         Player boss = characterAction.chooseBoss(human);
-        battleManager.startSpecificEnemyRound(this, boss);  // этот метод создадим в следующем шаге
+        battleManager.startSpecificEnemyRound(this, boss);  
     }
     
     public void onEnemyDefeated() {

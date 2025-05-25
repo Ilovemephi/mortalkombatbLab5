@@ -2,6 +2,9 @@
 package mephi.b22901.ae.lab5;
 
      public class EnemyFactory {
+         /**
+          * Создаем соперников
+          */
     public static Player createEnemy(EnemyType type, int level) {
         switch (type) {
             case BARAKA:
